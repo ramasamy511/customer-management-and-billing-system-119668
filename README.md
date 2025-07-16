@@ -1,1 +1,3 @@
-# customer-management-and-billing-system-119668
+# Project Repository
+
+This is the initial README file for the project.
