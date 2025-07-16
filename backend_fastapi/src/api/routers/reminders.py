@@ -41,7 +41,11 @@ def list_reminders(
     response_model=models.ReminderOut,
     status_code=status.HTTP_201_CREATED,
     summary="Send reminder (trigger and record status)",
-    description="Triggers a reminder via Email or WhatsApp based on channel and records the attempt and status.",
+    description=(
+        "Triggers a customer payment reminder via Email (SMTP) or WhatsApp (API stub). "
+        "The channel field in the request determines which integration is used. "
+        "A reminder record is always created in the DB; failures are reflected in the status."
+    ),
     tags=["Reminders"]
 )
 def send_reminder(
@@ -49,19 +53,29 @@ def send_reminder(
     db: Session = Depends(get_db)
 ):
     """
-    Send a payment reminder to the customer via the specified channel ("email" or "whatsapp").
-    Records the attempt and the status.
-    - For email: sends via SMTP if customer.email exists.
-    - For WhatsApp: (stub) intended for later WhatsApp Business API integration.
+    PUBLIC_INTERFACE
+
+    Send a payment reminder to the customer via "email" or "whatsapp" (stub).
+
+    Integration details:
+      - Email: Uses SMTP, requires valid customer.email, see README for env vars.
+      - WhatsApp: Integration is a stub; extend integrations.py for real sending.
 
     Args:
-        reminder (ReminderCreate): Reminder details (must specify channel).
+        reminder (ReminderCreate): Reminder payload specifying 'channel', must be 'email' or 'whatsapp'.
+        db (Session): DB session dependency.
 
     Returns:
-        ReminderOut: The status of the sent reminder attempt.
+        ReminderOut: Status of the reminder attempt.
 
     Raises:
-        HTTPException: If customer info is insufficient or integration fails.
+        HTTPException: If recipient info or channel unsupported, or integration error.
+
+    Example usage (POST body):
+        {
+          "invoice_id": 1,
+          "channel": "email"            # or "whatsapp"
+        }
     """
     invoice = db.query(models.Invoice).filter(models.Invoice.id == reminder.invoice_id).first()
     if not invoice:

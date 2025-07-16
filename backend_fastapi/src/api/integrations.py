@@ -6,15 +6,17 @@ from fastapi import HTTPException
 # PUBLIC_INTERFACE
 def send_email_reminder(recipient_email: str, subject: str, message: str) -> None:
     """
-    Sends an email reminder through SMTP.
+    Sends an email reminder to a customer via SMTP.
 
     Args:
         recipient_email (str): The recipient's email address.
-        subject (str): The email subject.
-        message (str): The email body/content.
+        subject (str): The email subject line.
+        message (str): The plain text email content.
 
     Raises:
-        HTTPException: If there is an error sending email.
+        HTTPException: If SMTP config is incomplete or sending fails.
+    Example:
+        send_email_reminder("foo@bar.com", "Subject", "Body text")
     """
     smtp_host = os.getenv("SMTP_HOST", "")
     smtp_port = int(os.getenv("SMTP_PORT", 587))
@@ -41,17 +43,23 @@ def send_email_reminder(recipient_email: str, subject: str, message: str) -> Non
 # PUBLIC_INTERFACE
 def send_whatsapp_reminder(recipient_phone: str, message: str) -> None:
     """
-    Sends a WhatsApp reminder using a 3rd party API or stub.
-
+    Sends a WhatsApp reminder message to the customer via the WhatsApp Business API (stub only).
+    
     Args:
-        recipient_phone (str): The recipient's WhatsApp phone number (E.164 format recommended).
-        message (str): The message body.
+        recipient_phone (str): WhatsApp phone number in E.164 format (e.g., +919988776655).
+        message (str): Message to send.
 
     Raises:
-        NotImplementedError: This function is a stub for WhatsApp integration.
+        NotImplementedError: Always, as this is a stub.
+
+    Note:
+        This is a placeholder/stub for integration with Twilio, Meta API, or another WhatsApp provider.
+        Production use should implement this using a real API call (adjust error handling as appropriate).
+    Example:
+        send_whatsapp_reminder("+911234567890", "Your reminder text")
     """
-    # In production: integrate with Twilio, Meta API, etc.
-    # For now, this is a stub to show interface.
-    # Log/output can be added for demonstration.
-    # Example: requests.post("https://api.whatsapp.service/send", ...)
-    raise NotImplementedError("WhatsApp integration not implemented. (Stub)")
+    # Example stub: uncomment and customize for production integration
+    # import requests
+    # requests.post("https://whatsapp.yourservice.com/send", json={...}, headers={...})
+
+    raise NotImplementedError("WhatsApp integration not implemented. See README for info.")
